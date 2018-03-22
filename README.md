@@ -1,11 +1,8 @@
 # Solar System Explorers
 This is an example of how to use the people API from [solarsystem.nasa.gov](https://solarsystem.nasa.gov/people)
 
-You can view the example here…
-https://jimthoburn.github.io/solar-system-explorers/
-
-And the source code is here…
-https://github.com/jimthoburn/solar-system-explorers/blob/master/index.html
+* [Example page](https://jimthoburn.github.io/solar-system-explorers/)
+* [Source code](https://github.com/jimthoburn/solar-system-explorers/blob/master/index.html)
 
 The example is using client-side JavaScript to fetch the API data, and present it on a web page.
 
