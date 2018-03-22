@@ -3,7 +3,7 @@ An example of how to use the people API from solarsystem.nasa.gov
 
 https://jimthoburn.github.io/solar-system-explorers/
 
-## Example requests for the People API on solarsystem.nasa.gov
+## Example requests
 
 ### All people
 ```https://solarsystem.nasa.gov/api/v1/site_staffs/?category=4```
