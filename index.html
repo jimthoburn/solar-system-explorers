@@ -7,22 +7,39 @@
   <style>
     body {
       font: 100% / 1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
-      max-width: 40em;
-      margin-left: auto;
-      margin-right: auto;
+      padding: 3em 4.5em;
     }
     li {
-      margin-top: 1.5em;
+      margin-top: 3em;
     }
-    li h2 {
-      margin-top: 0;
+    li h3 {
       display: inline;
+    }
+    figure {
+      margin-left: 0;
+      margin-right: 0;
+    }
+    summary {
+      margin-top: 1.5em;
+      margin-bottom: 1.5em;
     }
     @supports (object-fit: cover) {
       img {
-        max-width: 100%;
+        width: 100%;
         object-fit: cover;
       } 
+    }
+    @supports (display: grid) {
+      ol, li {
+        list-style: none;
+        margin-left: 0;
+        padding-left: 0;
+      }    
+      ol {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(18em, 1fr));
+        grid-gap: 3em;
+      }
     }
   </style>
 
@@ -34,31 +51,52 @@
 
 <script type="text/template" id="person-template">
   <li>
+    <h2>{{ name }}</h2>
+    <h3>{{ title }}</h3>
+    <figure>
+      <img src="{{ image }}" alt="{{ name }}" />
+    </figure>
+    <p>{{ description }}</p>
     <details>
-      <summary><h2>{{ name }}</h2></summary>
-      <p>{{ title }}</p>
-      <figure>
-        <!-- https://solarsystem.nasa.gov/system/site_staffs/detail_images/4157_404324_10100115118792814_1316951974_n.jpg -->
-        <img src="https://solarsystem.nasa.gov/system/site_staffs/detail_images/{{ id }}_{{ detail_image_file_name }}" alt="{{ name }}" />
-      </figure>
+      <summary>
+        <h3><abbr title="Questions and Answers">Q &amp; A</abbr></h3>
+      </summary>
       {{ body }}
     </details>
   </li>
 </script>
 
-
 <script>
 (function() {
 
-  // 1) Request the people data
+  // Example requests for the People API on solarsystem.nasa.gov
+
+  // All people
+  // https://solarsystem.nasa.gov/api/v1/site_staffs/?category=4
+
+  // Featured people
+  // https://solarsystem.nasa.gov/api/v1/site_staffs/?category=4:134
+
+  // Tributes
+  // https://solarsystem.nasa.gov/api/v1/site_staffs/?category=4:147
+
+  // People with the Saturn tag
+  // https://solarsystem.nasa.gov/api/v1/site_staffs/?category=4&tags=saturn
+
+  // Limit to twenty people per page
+  // https://solarsystem.nasa.gov/api/v1/site_staffs/?category=4&per_page=20&page=0
+
+  // Get the next page
+  // https://solarsystem.nasa.gov/api/v1/site_staffs/?category=4&per_page=20&page=1
+
+  // Order the data by name, ascending
+  // https://solarsystem.nasa.gov/api/v1/site_staffs/?category=4&order=name+asc
+
+  // Order the data by name, descending
+  // https://solarsystem.nasa.gov/api/v1/site_staffs/?category=4&order=name+desc
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-  //
-  // TBD: Can we send this request to a CORS enabled server?
-  // fetch('https://solarsystem.nasa.gov/api/v1/site_staffs/?page=0&per_page=200&order=name+asc')
-  //
-  // In the mean time, we can use a local, static copy of the API…
-  fetch('data.json')
+  fetch('https://solarsystem.nasa.gov/api/v1/site_staffs/?page=0&per_page=9999&order=name+asc&search=&category=4')
     .then(function(response) {
       return response.json()
     })
@@ -71,29 +109,29 @@
     })
 
   function addItems(data) {
-
-    var list = document.getElementById('people-list')
+    var list     = document.getElementById('people-list')
     var template = document.getElementById('person-template')
 
     if (data && list && template) {
-
-      // For each person
       for (var index = 0; index < data.items.length; index++) {
-
-        // Create a new element and fill it with that person’s information
         createItem(data.items[index], list, template)
       }
-
     }
   }
 
   function createItem(itemData, list, template) {
+    var name  = itemData.name
+    var title = itemData.title
+    var description = itemData.short_description
+    var image = 'https://solarsystem.nasa.gov/' + itemData.image_src
+    var body  = itemData.body.replace(/='\//g, "='https://solarsystem.nasa.gov/")
+
     var html = template.innerHTML
-      .replace(/\{\{ name \}\}/g, itemData.name)
-      .replace("{{ title }}", itemData.title)
-      .replace("{{ id }}", itemData.id)
-      .replace("{{ detail_image_file_name }}", itemData.detail_image_file_name)
-      .replace("{{ body }}", itemData.body.replace(/='\//g, "='https://solarsystem.nasa.gov/"))
+      .replace(/\{\{ name \}\}/g,        name)
+      .replace(/\{\{ description \}\}/g, description)
+      .replace(/\{\{ title \}\}/g,       title)
+      .replace(/\{\{ image \}\}/g,       image)
+      .replace(/\{\{ body \}\}/g,        body)
 
     list.insertAdjacentHTML('beforeend', html)
   }
