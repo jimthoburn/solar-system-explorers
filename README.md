@@ -1,5 +1,5 @@
 # Solar System Explorers
-An example of how to use the people API from solarsystem.nasa.gov
+An example of how to use the people API from [solarsystem.nasa.gov](https://solarsystem.nasa.gov/people)
 
 https://jimthoburn.github.io/solar-system-explorers/
 
