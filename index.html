@@ -19,6 +19,11 @@
       margin-left: 0;
       margin-right: 0;
     }
+    figcaption {
+      font-size: 0.75em;
+      font-style: italic;
+      opacity: 0.5;
+    }
     summary {
       margin-top: 1.5em;
       margin-bottom: 1.5em;
@@ -55,6 +60,7 @@
     <h3>{{ title }}</h3>
     <figure>
       <img src="{{ image }}" alt="{{ name }}" />
+      <figcaption>{{ caption }}</figcaption>
     </figure>
     <p>{{ description }}</p>
     <details>
@@ -124,6 +130,7 @@
     var title = itemData.title
     var description = itemData.short_description
     var image = 'https://solarsystem.nasa.gov/' + itemData.image_src
+    var caption = itemData.image_subtitle
     var body  = itemData.body.replace(/='\//g, "='https://solarsystem.nasa.gov/")
 
     var html = template.innerHTML
@@ -131,6 +138,7 @@
       .replace(/\{\{ description \}\}/g, description)
       .replace(/\{\{ title \}\}/g,       title)
       .replace(/\{\{ image \}\}/g,       image)
+      .replace(/\{\{ caption \}\}/g,     caption)
       .replace(/\{\{ body \}\}/g,        body)
 
     list.insertAdjacentHTML('beforeend', html)
