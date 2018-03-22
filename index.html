@@ -46,12 +46,20 @@
         grid-gap: 3em;
       }
     }
+    .error .message,
+    .loading .message {
+      display: block !important;
+    }
+    .error .message {
+      color: red;
+    }
   </style>
 
 </head>
 <body>
 
 <h1>Solar System Explorers</h1>
+<p class="message" style="display: none;" role="status"></p>
 <ol id="people-list"></ol>
 
 <script type="text/template" id="person-template">
@@ -102,6 +110,7 @@
   // https://solarsystem.nasa.gov/api/v1/site_staffs/?category=4&order=name+desc
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+  showLoadingMessage()
   fetch('https://solarsystem.nasa.gov/api/v1/site_staffs/?page=0&per_page=9999&order=name+asc&search=&category=4')
     .then(function(response) {
       return response.json()
@@ -109,9 +118,11 @@
     .then(function(myJson) {
       console.log(myJson)
       addItems(myJson)
+      hideLoadingMessage()
     })
     .catch(function(error) {
       console.error(error)
+      showErrorMessage()
     })
 
   function addItems(data) {
@@ -142,6 +153,21 @@
       .replace(/\{\{ body \}\}/g,        body)
 
     list.insertAdjacentHTML('beforeend', html)
+  }
+
+  function showErrorMessage() {
+    document.body.classList.add('error');
+    document.querySelector('.message').textContent = 'An error occurred while loading the data';
+  }
+
+  function showLoadingMessage() {
+    document.body.classList.add('loading');
+    document.querySelector('.message').textContent = 'Loading data…';
+  }
+
+  function hideLoadingMessage() {
+    document.body.classList.remove('loading');
+    document.querySelector('.message').textContent = 'This page has loaded';
   }
 
 })();
