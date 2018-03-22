@@ -6,7 +6,7 @@ This is an example of how to use the people API from [solarsystem.nasa.gov](http
 
 The example is using client-side JavaScript to fetch the API data, and present it on a web page.
 
-## Example requests
+## Example API requests
 
 ### All people
 ```https://solarsystem.nasa.gov/api/v1/site_staffs/?category=4```
