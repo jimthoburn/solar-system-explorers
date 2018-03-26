@@ -137,12 +137,14 @@
   }
 
   function createItem(itemData, list, template) {
-    var name  = itemData.name
-    var title = itemData.title
+    var name        = itemData.name
+    var title       = itemData.title
     var description = itemData.short_description
-    var image = 'https://solarsystem.nasa.gov/' + itemData.image_src
-    var caption = itemData.image_subtitle
-    var body  = itemData.body.replace(/='\//g, "='https://solarsystem.nasa.gov/")
+    var caption     = itemData.image_subtitle
+    var body        = itemData.body
+    var image       = itemData.image_src
+
+    if (image.indexOf('/') === 0) image = 'https://solarsystem.nasa.gov' + image
 
     var html = template.innerHTML
       .replace(/\{\{ name \}\}/g,        name)
