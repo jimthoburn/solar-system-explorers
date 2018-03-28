@@ -8,12 +8,18 @@
     body {
       font: 100% / 1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
       padding: 3em 4.5em;
+      background: white;
+      color: black;
     }
     li {
       margin-top: 3em;
     }
-    li h3 {
-      display: inline;
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    .summary img {
+      width: 100%;
     }
     figure {
       margin-left: 0;
@@ -27,24 +33,73 @@
     summary {
       margin-top: 1.5em;
       margin-bottom: 1.5em;
+      display: block;
+      list-style: none;
+      cursor: pointer;
     }
-    @supports (object-fit: cover) {
-      img {
-        width: 100%;
-        object-fit: cover;
-      } 
+    summary h2 {
+      text-decoration: underline;
     }
-    @supports (display: grid) {
-      ol, li {
-        list-style: none;
-        margin-left: 0;
-        padding-left: 0;
-      }    
-      ol {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(18em, 1fr));
-        grid-gap: 3em;
-      }
+    details[open] summary h2 {
+      text-decoration: none;
+    }
+    details[open] .mask-behind-details {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      min-height: 100vh;
+      background: black;
+      background: rgba(0, 0, 0, 0.9);
+    }
+    details .summary {
+      border: 0.25em solid white;
+      padding: 1.25em;
+    }
+    details[open] .summary {
+      position: relative;
+      z-index: 99999;
+      color: white;
+      margin-bottom: 4.5em;
+    }
+    details[open] .summary::after {
+      content: "⬇︎";
+      display: block;
+      text-align: center;
+      font-size: 2em;
+      position: absolute;
+      width: 100%;
+      top: 100%;
+      left: 0;
+      top: calc(100% + 0.5em);
+    }
+    details summary::-webkit-details-marker,
+    details summary:focus::-webkit-details-marker {
+      display: none;
+    }
+    details {
+      display: block;
+    }
+    .details {
+      position: absolute;
+      left: 50%;
+      width: 100%;
+      max-width: 48em;
+      background: white;
+      color: black;
+      transform: translateX(-50%);
+      padding: 3em;
+      box-sizing: border-box;
+    }
+    ol, li {
+      list-style: none;
+      margin-left: 0;
+      padding-left: 0;
+    }
+    ol {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(21em, 1fr));
+      grid-gap: 3em 0;
     }
     .error .message,
     .loading .message {
@@ -59,23 +114,28 @@
 <body>
 
 <h1>Solar System Explorers</h1>
-<p class="message" style="display: none;" role="status"></p>
+<p role="status" class="message" style="display: none;"></p>
 <ol id="people-list"></ol>
 
 <script type="text/template" id="person-template">
   <li>
-    <h2>{{ name }}</h2>
-    <h3>{{ title }}</h3>
-    <figure>
-      <img src="{{ image }}" alt="{{ name }}" />
-      <figcaption>{{ caption }}</figcaption>
-    </figure>
-    <p>{{ description }}</p>
     <details>
       <summary>
-        <h3><abbr title="Questions and Answers">Q &amp; A</abbr></h3>
+        <div class="summary">
+          <img src="{{ image }}" alt="{{ name }}" />
+          <h2>{{ name }}</h2>
+          <h3>{{ title }}</h3>
+          <p>{{ description }}</p>
+        </div>
+        <div class="mask-behind-details"></div>
       </summary>
-      {{ body }}
+      <div class="details">
+        <figure>
+          <img src="{{ detailImage }}" alt="{{ name }}" />
+          <figcaption>{{ caption }}</figcaption>
+        </figure>
+        {{ body }}
+      </div>
     </details>
   </li>
 </script>
@@ -109,6 +169,7 @@
   // Order the data by name, descending
   // https://solarsystem.nasa.gov/api/v1/site_staffs/?category=4&order=name+desc
 
+
   // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
   showLoadingMessage()
   fetch('https://solarsystem.nasa.gov/api/v1/site_staffs/?page=0&per_page=9999&order=name+asc&search=&category=4')
@@ -116,7 +177,6 @@
       return response.json()
     })
     .then(function(myJson) {
-      console.log(myJson)
       addItems(myJson)
       hideLoadingMessage()
     })
@@ -143,33 +203,36 @@
     var caption     = itemData.image_subtitle
     var body        = itemData.body
     var image       = itemData.image_src
+    var detailImage = itemData.detail_image_src
 
-    if (image.indexOf('/') === 0) image = 'https://solarsystem.nasa.gov' + image
+    if (      image.indexOf('/') === 0)       image = 'https://solarsystem.nasa.gov' + image
+    if (detailImage.indexOf('/') === 0) detailImage = 'https://solarsystem.nasa.gov' + detailImage
 
     var html = template.innerHTML
       .replace(/\{\{ name \}\}/g,        name)
       .replace(/\{\{ description \}\}/g, description)
       .replace(/\{\{ title \}\}/g,       title)
       .replace(/\{\{ image \}\}/g,       image)
+      .replace(/\{\{ detailImage \}\}/g, detailImage)
       .replace(/\{\{ caption \}\}/g,     caption)
       .replace(/\{\{ body \}\}/g,        body)
 
     list.insertAdjacentHTML('beforeend', html)
   }
 
-  function showErrorMessage() {
-    document.body.classList.add('error');
-    document.querySelector('.message').textContent = 'An error occurred while loading the data';
-  }
-
   function showLoadingMessage() {
     document.body.classList.add('loading');
-    document.querySelector('.message').textContent = 'Loading data…';
+    document.querySelector('.message').textContent = 'Loading data…'
+  }
+
+  function showErrorMessage() {
+    document.body.classList.add('error');
+    document.querySelector('.message').textContent = 'An error occurred while loading the data.'
   }
 
   function hideLoadingMessage() {
     document.body.classList.remove('loading');
-    document.querySelector('.message').textContent = 'This page has loaded';
+    document.querySelector('.message').textContent = 'The data has finished loading.'
   }
 
 })();
